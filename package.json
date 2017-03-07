@@ -1,0 +1,11 @@
+{
+  "name": "Kat",
+  "version": "0.0.1",
+  "description": "Kat",
+  "main": "server.js",
+  "author": "Nicolas Bouhours",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
