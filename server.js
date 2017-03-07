@@ -8,6 +8,7 @@ const cors = require('cors')
 const join = require('join')
 
 const { WEB_PORT, ENV } = require('./config/const')
+const routes = require('./app/routes/index.route')
 
 const app = express()
 
@@ -29,9 +30,7 @@ app.use(helmet())
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors())
 
-app.get('/', (req, res) => {
-  res.send('hello')
-})
+app.use('/api', routes)
 
 app.listen(WEB_PORT, () => {
   // eslint-disable-next-line no-console
