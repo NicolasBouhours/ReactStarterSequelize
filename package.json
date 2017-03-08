@@ -9,13 +9,16 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "bcrypt": "^1.0.2",
     "body-parser": "^1.17.1",
     "compression": "^1.6.2",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.1",
+    "crypto": "0.0.3",
     "express": "^4.15.2",
     "helmet": "^3.4.1",
     "join": "^3.0.0",
+    "jsonwebtoken": "^7.3.0",
     "mongoose": "^4.8.6",
     "morgan": "^1.8.1"
   },

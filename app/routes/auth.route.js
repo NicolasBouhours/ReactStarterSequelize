@@ -5,6 +5,6 @@ const authController = require('../controllers/auth.controller')
 const router = express.Router()
 
 // Get API routes
-router.get('/login', authController.login)
+router.get('/signin', authController.signin)
 
 module.exports = router
