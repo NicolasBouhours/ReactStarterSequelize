@@ -1,12 +1,12 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+module.exports = function(sequelize, DataTypes) {
+  var User = sequelize.define("User", {
+    email: {type: DataTypes.STRING(80), unique: true},
+    firstname: {type: DataTypes.STRING(50), allowNull: false},
+    lastname: {type: DataTypes.STRING(50), allowNull: false},
+    password: {type: DataTypes.STRING, allowNull: false}
+  }, {
+      freezeTableName: true
+  })
 
-const UserSchema = new Schema({
-  email: { type: String, required: true },
-  firstname: { type: String, required: true },
-  lastname: { type: String, required: true },
-  password: { type: String, required: true },
-  hash: { type: String, required: true }
-})
-
-module.exports = mongoose.model('User', UserSchema)
+  return User
+}

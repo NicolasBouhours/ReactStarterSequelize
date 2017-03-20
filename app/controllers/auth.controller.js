@@ -3,11 +3,10 @@ const jwt    = require('jsonwebtoken')
 
 const config = require('../../config/const')
 const handle = require('../utils/handle')
-const User   = require('../models/user')
+const models   = require('../models')
 
-// ## Sign in User
+// ## Sign in models.User
 function signin(req, res, next) {
-  res.send('Signin')
   const { email, password } = req.body
 
   // Check if email and password are send
@@ -17,7 +16,7 @@ function signin(req, res, next) {
   }
 
   // Find user on database
-  User.findOne({ email: email})
+  models.User.findOne({ email: email})
   .then((user) => {
 
     // Si aucun utilisateur existe
@@ -26,14 +25,11 @@ function signin(req, res, next) {
       return false
     }
 
-    // Compare password
-    bcrypt.compare(password, user.hash)
-    .then((res) => {
-      if (res) {
-
+    bcrypt.compare(password, user.password, (err, result) => {
+      if (result) {
         // create token
-        const token = jwt.sign(user, config.SECRET, {
-          expiresInMinutes: config.TOKEN_EXPIRATION
+        const token = jwt.sign({ data: user.email }, config.SECRET, {
+           expiresIn: '72h'
         })
 
         res.json({ success: true, message: 'Connexion effectuée avec succès', token })
@@ -41,7 +37,6 @@ function signin(req, res, next) {
         handle.handleError(res, 'Mauvais mot de passe')
       }
     })
-    .catch(err => handle.handleError(res, 'Impossible d\'effectuer la connexion', err))
   })
   .catch(err => handle.handleError(res, 'Impossible d\'effectuer la connexion', err))
 }
@@ -52,33 +47,37 @@ function signup(req, res, next) {
 
   // Check if all field are send
   if (!email || !password || !firstname || !lastname) {
-    handle.handleError(res, 'Veuillez renseigner tout les champs requis', err)
+    handle.handleError(res, 'Veuillez renseigner tout les champs requis')
     return false
   }
 
   // Find user on database
-  User.findOne({ email: email})
+  models.User.findOne({
+    where: {
+       email: email }
+    })
   .then((user) => {
 
     // Si aucun utilisateur existe
     if (user) {
-      handle.handleError(res, 'Un utilisateur existe déja pour cet email', err)
+      handle.handleError(res, 'Un utilisateur existe déja pour cet email')
       return false
     }
 
-    // Hash password
-    bcrypt.hash(password, config.SALT_ROUNDS)
-    .then((hash) => {
+    bcrypt.hash(password, config.SALT_ROUNDS, (err, hash) => {
 
-      // Create new user
-      let user = new User({email, password, firstname, lastname, hash})
+        if (hash) {
+          // Save user
+          models.User.create({
+            email, firstname, lastname, password: hash
+          })
+          .then(usr => handle.handleSuccess(res, 'Utilisateur crée avec succès'))
+          .catch(err => handle.handleError(res, 'Impossible d\'effectuer la création de compte', err))
+          return
+        }
 
-      // Save user
-      user.save()
-      .then(usr => handle.handleSuccess(res, 'Utilisateur crée avec succès'))
-      .catch(err => handle.handleError(res, 'Impossible d\'effectuer la création de compte', err))
+        handle.handleError(res, 'Impossible d\'effectuer la création de compte', err)
     })
-    .catch(err => handle.handleError(res, 'Impossible d\'effectuer la création de compte', err))
   })
   .catch(err => handle.handleError(res, 'Impossible d\'effectuer la création de compte', err))
 }

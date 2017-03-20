@@ -1,11 +1,13 @@
 const compression = require('compression')
 const express = require('express')
 const morgan = require('morgan')
-const mongoose = require('mongoose')
+const sequelize = require('sequelize')
 const bodyParser = require('body-parser')
 const helmet = require('helmet')
 const cors = require('cors')
 const join = require('join')
+const bluebird = require('bluebird')
+const User = require('./app/models/user')
 
 const { WEB_PORT, ENV } = require('./config/const')
 const routes = require('./app/routes/index.route')
@@ -18,7 +20,7 @@ app.use(compression())
 app.use('/static', express.static(__dirname + '/public'))
 
 // Desactivate log if test environment
-if (ENV !== 'test') app.use(morgan())
+if (ENV !== 'test') app.use(morgan('tiny'))
 
 // parse body params and attache them to req.body
 app.use(bodyParser.json())
