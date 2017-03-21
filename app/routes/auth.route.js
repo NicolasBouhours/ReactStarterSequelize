@@ -11,6 +11,8 @@ router.post('/signin', authController.signin)
 
 router.post('/signup', authController.signup)
 
+router.put('/password', auth.required, authController.updatePassword)
+
 router.get('/profile', auth.required, userController.getProfile)
 
 router.put('/profile', auth.required, userController.updateProfile)

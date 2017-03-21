@@ -79,9 +79,42 @@ function signup(req, res, next) {
   .catch(err => handle.handleError(res, 'Impossible d\'effectuer la création de compte', err))
 }
 
-// ## Sign out User
-function signout(req, res, next) {
-  res.json({'message': 'signout'})
+// ## Update user password
+function updatePassword(req, res, next) {
+  // Get user
+  models.User.findById(req.payload.data)
+    .then((user) => {
+      if (!user) {
+        handle.handleError(res, 'Impossible de récupèrer l\'utilisateur')
+        return false
+      }
+
+      // Compare existing password
+      if (!bcrypt.compareSync(req.body.password, user.password)) {
+        handle.handleError(res, 'Le mot de passe ne correspond pas a l\'actuel mot de passe')
+        return false
+      }
+
+      // Check if new passord are equal
+      if (req.body.newPassword !== req.body.newConfirmPassword) {
+        handle.handleError(res, 'Les deux mots de passe ne sont pas identiques')
+        return false
+      }
+
+      // Crypt new password
+      bcrypt.hash(req.body.newPassword, config.SALT_ROUNDS, (err, hash) => {
+          if (!hash) {
+            handle.handleError(res, 'Impossible d\'effectuer la création de compte', err)
+            return false
+          }
+
+          // Update entity on database
+          user.update({ password: hash})
+            .then((user) => handle.handleSuccess(res, 'Mot de passe modifié avec succès'))
+            .catch((err) => handle.handleError(res, 'Les deux mots de passe ne sont pas identiques', err))
+      })
+    })
+    .catch(err => handle.handleError(res, 'Impossible de récupèrer les informations utilisateur', err))
 }
 
-module.exports = { signin, signup }
+module.exports = { signin, signup, updatePassword }
