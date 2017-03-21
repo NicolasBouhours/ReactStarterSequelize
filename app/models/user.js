@@ -5,7 +5,14 @@ module.exports = function(sequelize, DataTypes) {
     lastname: {type: DataTypes.STRING(50), allowNull: false},
     password: {type: DataTypes.STRING, allowNull: false}
   }, {
-      freezeTableName: true
+      freezeTableName: true,
+      instanceMethods: {
+        toJSON: function() {
+          let user = this.dataValues
+          delete user.password
+          return user
+        }
+      }
   })
 
   return User

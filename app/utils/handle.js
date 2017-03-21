@@ -1,7 +1,10 @@
-exports.handleError = (res, message = 'Une erreure est survenue', err) => {
-  res.json({ success: false, message, debug: err })
+exports.handleError = (res, message, err) => {
+  if (err) {
+    err = err.toString()
+  }
+  res.json({ success: false, message, err })
 }
 
-exports.handleSuccess = (res, message = 'Opération effectuée avec succès', result) => {
+exports.handleSuccess = (res, message, result) => {
   res.json({ sucess: true, message, result })
 }

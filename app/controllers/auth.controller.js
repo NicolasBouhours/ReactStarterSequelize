@@ -28,7 +28,7 @@ function signin(req, res, next) {
     bcrypt.compare(password, user.password, (err, result) => {
       if (result) {
         // create token
-        const token = jwt.sign({ data: user.email }, config.SECRET, {
+        const token = jwt.sign({ data: user.id }, config.SECRET, {
            expiresIn: '72h'
         })
 
@@ -52,10 +52,7 @@ function signup(req, res, next) {
   }
 
   // Find user on database
-  models.User.findOne({
-    where: {
-       email: email }
-    })
+  models.User.findOne({ email: email})
   .then((user) => {
 
     // Si aucun utilisateur existe
