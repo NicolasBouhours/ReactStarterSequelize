@@ -3,7 +3,9 @@ module.exports = function(sequelize, DataTypes) {
     email: {type: DataTypes.STRING(80), unique: true},
     firstname: {type: DataTypes.STRING(50), allowNull: false},
     lastname: {type: DataTypes.STRING(50), allowNull: false},
-    password: {type: DataTypes.STRING, allowNull: false}
+    password: {type: DataTypes.STRING, allowNull: false},
+    reset_token: {type: DataTypes.STRING},
+    reset_token_expire: {type: DataTypes.DATE}
   }, {
       freezeTableName: true,
       instanceMethods: {

@@ -1,4 +1,5 @@
 exports.handleError = (res, message, err) => {
+  console.log(err)
   if (err) {
     err = err.toString()
   }

@@ -3,12 +3,14 @@ const ENV = process.env.NODE_ENV || 'development'
 const SECRET = 'mysupersecret53'
 const TOKEN_EXPIRATION = 4320
 const SALT_ROUNDS = 10
-const MYSQL = 'mysql://root:@localhost/kat'
+const MYSQL = 'mysql://root:@127.0.0.1/kat'
+const SMTP = 'smtps://nicolas.bouhours5396@gmail.com:nicodu5396@smtp.gmail.com'
 
 module.exports = {
   WEB_PORT,
   ENV,
   SECRET,
   MYSQL,
-  SALT_ROUNDS
+  SALT_ROUNDS,
+  SMTP
 }

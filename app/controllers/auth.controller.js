@@ -1,9 +1,11 @@
 const bcrypt = require('bcrypt')
 const jwt    = require('jsonwebtoken')
+const crypto = require('crypto')
 
 const config = require('../../config/const')
 const handle = require('../utils/handle')
 const models   = require('../models')
+const authMailService = require('../services/mailer/auth.mail')
 
 // ## Sign in models.User
 function signin(req, res, next) {
@@ -21,7 +23,7 @@ function signin(req, res, next) {
 
     // Si aucun utilisateur existe
     if (!user) {
-      handle.handleError(res, 'Aucun utilisateur n\'existe pour ces identifiants', err)
+      handle.handleError(res, 'Aucun utilisateur n\'existe pour ces identifiants')
       return false
     }
 
@@ -117,4 +119,44 @@ function updatePassword(req, res, next) {
     .catch(err => handle.handleError(res, 'Impossible de récupèrer les informations utilisateur', err))
 }
 
-module.exports = { signin, signup, updatePassword }
+function forgotPassword(req, res, next) {
+
+  const { email } = req.body
+
+  // Find user
+  models.User.findOne({ email: email})
+  .then((user) => {
+    // If this user not exist
+    if (!user) {
+      handle.handleError(res, 'Aucun compte avec cet email n\'a été trouvé')
+      return false
+    }
+
+    // Create a token
+    crypto.randomBytes(48, (err, buffer) => {
+      if (err) {
+        handle.handleError(res, 'Une erreur est survenue')
+        return false
+      }
+
+      const token = buffer.toString('hex')
+      const token_expiration = Date.now() + 3600000
+
+      // Update user with new token informations
+      user.update({
+        reset_token: token,
+        reset_token_expire: token_expiration
+      })
+      .then((user) => {
+        // Send email
+        authMailService.sendForgotPasswordEmail(req.headers.host, token, user.email, user.firstname, user.lastname)
+          .then((mail) => handle.handleSuccess(res, 'Un email vous à été envoyé vous permettant de réinitialiser votre mot de passe'))
+          .catch(err => handle.handleError(res, 'Impossible d\'envoyer l\'email de réinitialisation', err))
+      })
+      .catch(err => handle.handleError(res, 'Impossible de mettre à jour l\'utilisateur', err))
+    })
+  })
+  .catch(err => handle.handleError(res, 'Impossible de récupèrer les informations de l\'utilisateur', err))
+}
+
+module.exports = { signin, signup, updatePassword, forgotPassword }

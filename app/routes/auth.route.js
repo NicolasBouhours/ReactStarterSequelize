@@ -2,7 +2,6 @@ const express = require('express')
 
 const auth = require('./middlewares/auth')
 const authController = require('../controllers/auth.controller')
-const userController = require('../controllers/user.controller')
 
 const router = express.Router()
 
@@ -13,8 +12,6 @@ router.post('/signup', authController.signup)
 
 router.put('/password', auth.required, authController.updatePassword)
 
-router.get('/profile', auth.required, userController.getProfile)
-
-router.put('/profile', auth.required, userController.updateProfile)
+router.post('/forgot', authController.forgotPassword)
 
 module.exports = router
