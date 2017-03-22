@@ -140,7 +140,9 @@ function forgotPassword(req, res, next) {
       }
 
       const token = buffer.toString('hex')
-      const token_expiration = Date.now() + 3600000
+      const token_expiration = Date.now() + config.RESET_PASSWORD_VALIDITY
+
+      console.log('token_expiration', token_expiration)
 
       // Update user with new token informations
       user.update({
@@ -159,4 +161,44 @@ function forgotPassword(req, res, next) {
   .catch(err => handle.handleError(res, 'Impossible de récupèrer les informations de l\'utilisateur', err))
 }
 
-module.exports = { signin, signup, updatePassword, forgotPassword }
+function resetPassword(req, res) {
+
+  const { token, password, confirmPassword } = req.body
+
+  // Check if all info required are present
+  if (!token || !password || !confirmPassword) {
+    handle.handleError(res, 'Veuillez renseigner le nouveau mot de passe')
+    return false
+  }
+
+  // Check if password and confirm password are okay
+  if (password !== confirmPassword) {
+    handle.handleError(res, 'Vos deux mot de passe doivent être identique')
+    return false
+  }
+
+  // Check if token are fine and not expired
+  models.User.findOne({
+    where : {
+      reset_token: token,
+      reset_token_expire: { $gte: new Date() }
+    }
+  })
+  .then((user) => {
+    // Crypt new password
+    bcrypt.hash(password, config.SALT_ROUNDS, (err, hash) => {
+        if (!hash) {
+          handle.handleError(res, 'Impossible d\'effectuer de réinitialiser le mot de passe', err)
+          return false
+        }
+
+        // Update entity on database
+        user.update({ password: hash})
+          .then((user) => handle.handleSuccess(res, 'Mot de passe modifié avec succès'))
+          .catch((err) => handle.handleError(res, 'Erreur lors de la modification de mot de passe', err))
+    })
+  })
+  .catch(err => handle.handleError(res, 'Impossible de récupèrer les informations de l\'utilisateur', err))
+}
+
+module.exports = { signin, signup, updatePassword, forgotPassword, resetPassword }

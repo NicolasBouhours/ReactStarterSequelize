@@ -14,4 +14,6 @@ router.put('/password', auth.required, authController.updatePassword)
 
 router.post('/forgot', authController.forgotPassword)
 
+router.post('/reset', authController.resetPassword)
+
 module.exports = router
