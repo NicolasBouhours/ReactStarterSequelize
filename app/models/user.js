@@ -12,6 +12,8 @@ module.exports = function(sequelize, DataTypes) {
         toJSON: function() {
           let user = this.dataValues
           delete user.password
+          delete reset_token
+          delete reset_token_expire
           return user
         }
       }
